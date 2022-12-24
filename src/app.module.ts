@@ -3,10 +3,17 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from './products/products.module';
 import { CommonModule } from './common/common.module';
+import { EnvConfiguration } from './config/app.config';
+import { JoiValidationSchema } from './config/joi.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    /// lo importamos para la configuración de los environment //
+    ConfigModule.forRoot({
+      load: [EnvConfiguration],
+      validationSchema: JoiValidationSchema
+    }),
+    /// Configuración de postgress en TypeOrm 
     TypeOrmModule.forRoot({
       type:'postgres',
       host:process.env.DB_HOST,
