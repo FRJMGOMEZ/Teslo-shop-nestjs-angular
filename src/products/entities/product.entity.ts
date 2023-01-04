@@ -1,6 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ProductImage } from './product-image.entity';
 
-@Entity()
+@Entity({name:'products'})
 export class Product {
 
     @PrimaryGeneratedColumn('uuid')
@@ -29,6 +30,14 @@ export class Product {
 
     @Column('text', { array: true, default:[] })
     tags:string[];
+
+    /**
+     * Se configura la elminación en cascada, y la eager relationship (cada que que busquemos un producto, nos devuleve el objeto completo de cada imagen)
+     */
+    @OneToMany(()=>ProductImage,
+                  (productImage)=>productImage.product,
+                  {cascade:true,eager:true})
+    images?:ProductImage[];
 
     @BeforeUpdate()
     checkSlugFormat(){
