@@ -5,6 +5,7 @@ import { ProductsModule } from './products/products.module';
 import { CommonModule } from './common/common.module';
 import { EnvConfiguration } from './config/app.config';
 import { JoiValidationSchema } from './config/joi.validation';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { JoiValidationSchema } from './config/joi.validation';
       synchronize:true
     }),
     ProductsModule,
-    CommonModule
+    CommonModule,
+    SeedModule
   ],
   controllers: [],
   providers: [],
