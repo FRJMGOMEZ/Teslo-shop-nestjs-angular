@@ -10,6 +10,7 @@ import {validate as isUUID} from 'uuid';
 import { ProductImage } from './entities/product-image.entity';
 import { ConfigService } from '@nestjs/config';
 import { QueryRunnerService } from '../common/query-runner.service';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -28,10 +29,10 @@ export class ProductsService {
     this.defaultLimit = configService.getOrThrow<number>('defaultLimit');
   }
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user:User) {
     try{
      const {images = [], ...productDetails} = createProductDto;
-     const product = this.productRepository.create({...productDetails,images:images.map(image=> this.productImageRepository.create({url:image}))});
+     const product = this.productRepository.create({...productDetails,images:images.map(image=> this.productImageRepository.create({url:image})),user});
      await this.productRepository.save(product);
      return {...product, images:images};
    }catch(error){
@@ -76,7 +77,7 @@ export class ProductsService {
   }
 
   /// El query runner  sirve para hacer transacciones y hacer rollback si algo falla ///
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user:User) {
     const { images, ...toUpdate } = updateProductDto;
     const product = await this.productRepository.preload({ id, ...toUpdate });
     if (!product) {
@@ -87,11 +88,12 @@ export class ProductsService {
       if(images){
         await queryRunner.manager.delete(ProductImage,{product:{id}});
         product.images = images.map((image)=>this.productImageRepository.create({url:image}));
-        await queryRunner.manager.save(product);
       }else{
         product.images = await this.productImageRepository.findBy({product:{id}})
       }
-      await this.queryRunnerService.commitAndReleaseQueryRunner(queryRunner);
+      product.user = user;
+      await queryRunner.manager.save(product);
+      await this.queryRunnerService.commitAndReleaseQueryRunner(queryRunner)
       return {...product,images:product.images.map((img)=>img.url)};
       ;
     }catch(error){
@@ -116,7 +118,7 @@ export class ProductsService {
     throw new InternalServerErrorException('Unexpected error, check server logs'); 
   }
 
-  async deletAllProducts(){
+  async deleteAllProducts(){
     const query = this.queryBuilder;
     try{
      return await query.delete().where({}).execute();

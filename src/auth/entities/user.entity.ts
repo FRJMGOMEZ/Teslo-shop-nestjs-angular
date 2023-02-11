@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity('users')
 export class User {
@@ -16,11 +17,18 @@ export class User {
     fullName:string;
 
     @Column('bool',{default:true})
-
+    
     isActive:boolean;
 
     @Column('text',{array:true,default:['user']})
     roles:string[];
+
+    @OneToMany(
+        ()=> Product,
+        (product) => product.user,
+        {eager:true}
+    )
+    product:Product
 
     @BeforeInsert()
     checkFieldsBeforeInsert(){
