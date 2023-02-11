@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
@@ -6,6 +6,8 @@ import { GetUser } from './decorators/get-user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dro';
 import { User } from './entities/user.entity';
+import { GetRawHeaders } from '../common/decorators/get-raw-header.decorator';
+import { UserRoleGuard } from './guards/user-role/user-role.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,26 +26,14 @@ export class AuthController {
 
   @Get('private')
   @UseGuards(AuthGuard())
-  testingPrivateRoute(@GetUser()user:User){
-    return {ok:true,user};
-  }
-/*   @Get()
-  findAll() {
-    return this.authService.findAll();
+  testingPrivateRoute(@GetUser(['email']) user: User, @GetRawHeaders(['Bearer']) rawHeaders:string[]){
+    return {ok:true,user, rawHeaders};
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Get('private2')
+  @SetMetadata('roles',['admin','super-user'])
+  @UseGuards(AuthGuard(),UserRoleGuard)
+  testingPrivateRoute2(@GetUser(['email']) user: User) {
+    return { ok: true, user};
   }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  } */
 }
