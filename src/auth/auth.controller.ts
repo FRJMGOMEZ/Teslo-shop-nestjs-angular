@@ -10,6 +10,7 @@ import { GetRawHeaders } from '../common/decorators/get-raw-header.decorator';
 import { UserRoleGuard } from './guards/user-role/user-role.guard';
 import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRole } from './enums/valid-roles.enum';
+import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -37,5 +38,11 @@ export class AuthController {
   @UseGuards(AuthGuard(),UserRoleGuard)
   testingPrivateRoute2(@GetUser(['email']) user: User) {
     return { ok: true, user};
+  }
+
+  @Get('private3')
+  @Auth(ValidRole.admin,ValidRole.superUser)
+  testingPrivateRoute3(@GetUser(['email']) user: User) {
+    return { ok: true, user };
   }
 }
