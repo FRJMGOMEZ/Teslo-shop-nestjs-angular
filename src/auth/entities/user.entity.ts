@@ -25,8 +25,7 @@ export class User {
 
     @OneToMany(
         ()=> Product,
-        (product) => product.user,
-        {eager:true}
+        (product) => product.user
     )
     product:Product
 
