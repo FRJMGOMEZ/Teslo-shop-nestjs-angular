@@ -1,3 +1,4 @@
+import { ValidRole } from '../../auth/enums/valid-roles.enum';
 interface SeedProduct {
     description: string;
     images: string[];
@@ -18,7 +19,7 @@ interface SeedUser{
     email:string;
     fullName:string;
     password:string;
-    roles:string[]
+    roles:ValidRole[]
 }
 
 interface SeedData {
@@ -33,13 +34,13 @@ export const initialData: SeedData = {
             email:'user1@gmail.com',
             fullName:'User1',
             password:'Abc123!',
-            roles:['admin']
+            roles:[ValidRole.admin]
         },
         {
             email: 'user2@gmail.com',
             fullName: 'User2',
             password: 'Abc123!',
-            roles: ['admin']
+            roles: [ValidRole.admin]
         }
     ],
     products: [

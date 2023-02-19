@@ -1,28 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata } from '@nestjs/common';
+import { Controller, Get, Post, Body,UseGuards} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { GetUser } from './decorators/get-user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dro';
+import { LoginUserDto } from './dto/login-user.dto';
 import { User } from './entities/user.entity';
 import { GetRawHeaders } from '../common/decorators/get-raw-header.decorator';
 import { UserRoleGuard } from './guards/user-role/user-role.guard';
 import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRole } from './enums/valid-roles.enum';
 import { Auth } from './decorators/auth.decorator';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoginUserReponseDto } from './dto/login-user-response.dto';
+import { CreateUserResponseDto } from './dto/create-user-response-dto';
 
+
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiResponse({ status: 201, description: 'User has been succesfully created', type: CreateUserResponseDto })
   @Post('register')
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.authService.createUser(createUserDto);/* this.authService.create(createAuthDto); */
+  createUser(@Body() createUserDto: CreateUserDto): Promise<CreateUserResponseDto> {
+    return this.authService.createUser(createUserDto);
   }
 
+  @ApiResponse({ status: 200, description: 'Succesfully logged', type:LoginUserReponseDto})
   @Post('login')
-  loginUser(@Body() loginUserDto:LoginUserDto){
+  loginUser(@Body() loginUserDto:LoginUserDto): Promise<LoginUserReponseDto>{
     return this.authService.loginUser(loginUserDto);
   }
 
